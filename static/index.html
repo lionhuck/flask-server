@@ -28,21 +28,31 @@
       <img id="photo" class="w-full rounded-xl border border-slate-800" src="/static/placeholder.png" alt="foto">
       <p class="text-xs text-slate-400 mt-2">Archivo: <span id="filename">—</span></p>
     </section>
-
+    
     <footer class="text-xs text-slate-500 text-center mt-8">
       Flask + Socket.IO — Control Remoto
     </footer>
   </div>
-
-<script>
-  const socket = io({ transports: ["websocket"] });
-  const conn = document.getElementById('conn');
-  const toggleFlash = document.getElementById('toggleFlash');
-  const takePhoto = document.getElementById('takePhoto');
-  const photo = document.getElementById('photo');
-  const filenameEl = document.getElementById('filename');
-  const filename = document.getElementById('filename');
   
+  <script>
+    const socket = io({ transports: ["websocket"] });
+    const conn = document.getElementById('conn');
+    const toggleFlash = document.getElementById('toggleFlash');
+    const takePhoto = document.getElementById('takePhoto');
+    const photo = document.getElementById('photo');
+    const filenameEl = document.getElementById('filename');
+    const filename = document.getElementById('filename');
+    
+    
+    async function loadLatest() {
+      const res = await fetch('/api/latest');
+      const j = await res.json();
+      if (j.ok && j.filename) {
+        filename.textContent = j.filename;
+        photo.src = `/uploads/${j.filename}?t=${Date.now()}`;
+      }
+    }
+    loadLatest();
   socket.on('new_photo', data => {
     filenameEl.textContent = data.filename;
     photo.src = `/uploads/${data.filename}?t=${Date.now()}`;
@@ -61,18 +71,8 @@
   toggleFlash.onclick = () => socket.emit('command', { type: 'TOGGLE_FLASH' });
   takePhoto.onclick = async () => {
     socket.emit('command', { type: 'TAKE_PHOTO' });
-    setTimeout(loadLatest, 3000);
   };
 
-  async function loadLatest() {
-    const res = await fetch('/api/latest');
-    const j = await res.json();
-    if (j.ok && j.filename) {
-      filename.textContent = j.filename;
-      photo.src = `/uploads/${j.filename}?t=${Date.now()}`;
-    }
-  }
-  loadLatest();
 </script>
 </body>
 </html>
