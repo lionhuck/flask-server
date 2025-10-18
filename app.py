@@ -107,6 +107,12 @@ def upload():
     with open(meta_path, 'w', encoding='utf-8') as fh:
         json.dump(meta, fh, ensure_ascii=False, indent=2)
 
+
+    socketio.emit('new_photo', {
+        'filename': fname,
+        'timestamp': meta['received_ts']
+    }, broadcast=True)
+
     print(f"[UPLOAD] Guardada {fname} (+metadata)")
     return jsonify({'ok': True, 'filename': fname})
 

@@ -40,7 +40,14 @@
   const toggleFlash = document.getElementById('toggleFlash');
   const takePhoto = document.getElementById('takePhoto');
   const photo = document.getElementById('photo');
+  const filenameEl = document.getElementById('filename');
   const filename = document.getElementById('filename');
+  
+  socket.on('new_photo', data => {
+    filenameEl.textContent = data.filename;
+    photo.src = `/uploads/${data.filename}?t=${Date.now()}`;
+    console.log("Nueva foto recibida:", data.filename);
+  });
 
   socket.on('connect', () => {
     conn.textContent = 'Conectado';
