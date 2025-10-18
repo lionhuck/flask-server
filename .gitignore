@@ -1,0 +1,13 @@
+# Ignore python cache files
+__pycache__/
+
+# Ignore virtual environment
+.venv
+
+# Ignore logs and log files
+*.log
+logs/
+
+# Ignore node_modules and bower_components
+node_modules/
+bower_components/

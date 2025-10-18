@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Control Remoto del Celular</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100">
+  <div class="max-w-4xl mx-auto p-6 space-y-6">
+    <header class="flex items-center justify-between">
+      <h1 class="text-2xl font-bold">📱 Control Remoto</h1>
+      <span id="conn" class="px-3 py-1 rounded bg-slate-800">Desconectado</span>
+    </header>
+
+    <section class="bg-slate-900 rounded-xl p-4 shadow">
+      <h2 class="font-semibold mb-3">Comandos</h2>
+      <div class="flex flex-wrap gap-3">
+        <button id="toggleFlash" class="px-4 py-2 rounded bg-amber-600 hover:bg-amber-500">🔦 Flash ON/OFF</button>
+        <button id="takePhoto" class="px-4 py-2 rounded bg-indigo-600 hover:bg-indigo-500">📸 Tomar foto</button>
+        <a href="/galeria" class="px-4 py-2 rounded bg-slate-700 hover:bg-slate-600 ml-auto">📚 Ver galería</a>
+      </div>
+    </section>
+
+    <section id="lastPhoto" class="bg-slate-900 rounded-xl p-4 shadow">
+      <h2 class="font-semibold mb-3">Última foto tomada</h2>
+      <img id="photo" class="w-full rounded-xl border border-slate-800" src="/static/placeholder.png" alt="foto">
+      <p class="text-xs text-slate-400 mt-2">Archivo: <span id="filename">—</span></p>
+    </section>
+
+    <footer class="text-xs text-slate-500 text-center mt-8">
+      Flask + Socket.IO — Control Remoto
+    </footer>
+  </div>
+
+<script>
+  const socket = io({ transports: ["websocket"] });
+  const conn = document.getElementById('conn');
+  const toggleFlash = document.getElementById('toggleFlash');
+  const takePhoto = document.getElementById('takePhoto');
+  const photo = document.getElementById('photo');
+  const filename = document.getElementById('filename');
+
+  socket.on('connect', () => {
+    conn.textContent = 'Conectado';
+    conn.className='px-3 py-1 rounded bg-emerald-700';
+  });
+  socket.on('disconnect', () => {
+    conn.textContent = 'Desconectado';
+    conn.className='px-3 py-1 rounded bg-slate-800';
+  });
+
+  toggleFlash.onclick = () => socket.emit('command', { type: 'TOGGLE_FLASH' });
+  takePhoto.onclick = async () => {
+    socket.emit('command', { type: 'TAKE_PHOTO' });
+    setTimeout(loadLatest, 3000);
+  };
+
+  async function loadLatest() {
+    const res = await fetch('/api/latest');
+    const j = await res.json();
+    if (j.ok && j.filename) {
+      filename.textContent = j.filename;
+      photo.src = `/uploads/${j.filename}?t=${Date.now()}`;
+    }
+  }
+  loadLatest();
+</script>
+</body>
+</html>

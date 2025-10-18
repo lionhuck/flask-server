@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Galería de Fotos</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-950 text-slate-100">
+  <div class="max-w-6xl mx-auto p-6 space-y-6">
+    <header class="flex items-center justify-between">
+      <h1 class="text-2xl font-bold">📚 Galería de Fotos</h1>
+      <a href="/" class="px-4 py-2 rounded bg-slate-700 hover:bg-slate-600">⬅ Volver</a>
+    </header>
+
+    <section id="gallery" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></section>
+
+    <footer class="text-xs text-slate-500 text-center mt-8">
+      Flask + Socket.IO — Galería de ubicaciones
+    </footer>
+  </div>
+
+<script>
+async function loadGallery() {
+  const container = document.getElementById('gallery');
+  const res = await fetch('/api/all');
+  const j = await res.json();
+  if (!j.ok || !j.files) return;
+
+  container.innerHTML = j.files.map(item => {
+    const name = item.filename;
+    const meta = item.metadata || {};
+    const coords = meta.lat && meta.lon ? `
+      <a href="https://www.google.com/maps?q=${meta.lat},${meta.lon}"
+         target="_blank"
+         class="text-blue-400 underline text-xs block mt-1">
+         ${parseFloat(meta.lat).toFixed(5)}, ${parseFloat(meta.lon).toFixed(5)}
+      </a>` : `<p class="text-xs text-slate-500 mt-1">Sin ubicación</p>`;
+
+    const date = meta.received_ts
+      ? new Date(meta.received_ts * 1000).toLocaleString()
+      : "";
+
+    return `
+      <div class="bg-slate-900 rounded-xl p-3 shadow border border-slate-800">
+        <a href="/uploads/${name}" target="_blank">
+          <img src="/uploads/${name}?t=${Date.now()}" class="w-full rounded-lg mb-2 hover:opacity-90"/>
+        </a>
+        ${coords}
+        <p class="text-xs text-slate-400 mt-1">${date}</p>
+      </div>
+    `;
+  }).join('');
+}
+loadGallery();
+</script>
+</body>
+</html>
