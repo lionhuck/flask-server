@@ -111,7 +111,7 @@ def upload():
     socketio.emit('new_photo', {
         'filename': fname,
         'timestamp': meta['received_ts']
-    }, broadcast=True)
+    })
 
     print(f"[UPLOAD] Guardada {fname} (+metadata)")
     return jsonify({'ok': True, 'filename': fname})
