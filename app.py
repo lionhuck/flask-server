@@ -24,12 +24,15 @@ socketio = SocketIO(
     ping_interval=25,
     logger=True,
     engineio_logger=True,
-    # Permitir todos los transportes, polling primero
+    # Permitir ambos transportes pero sin forzar upgrade
     transports=['polling', 'websocket'],
     # Aumentar timeouts para redes móviles
     http_compression=True,
     # Permitir más tamaño de payload
-    max_http_buffer_size=10000000
+    max_http_buffer_size=10000000,
+    # Configuración adicional para APKs
+    always_connect=True,
+    cookie=None
 )
 
 
@@ -241,7 +244,9 @@ def health():
 
 # === MAIN ===
 if __name__ == '__main__':
-    print("🚀 Servidor Flask corriendo en http://0.0.0.0:4321")
+    PORT = int(os.getenv('PORT', 4321))
+    print(f"🚀 Servidor Flask corriendo en http://0.0.0.0:{PORT}")
     print("📂 Carpeta de fotos:", UPLOAD_DIR)
     print("🔑 API Token:", API_TOKEN)
-    socketio.run(app, host='0.0.0.0', port=4321, debug=True)
+    print("📡 Transportes habilitados: polling, websocket")
+    socketio.run(app, host='0.0.0.0', port=PORT, debug=True, allow_unsafe_werkzeug=True)
