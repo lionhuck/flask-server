@@ -163,7 +163,7 @@ def upload():
     try:
         with open(meta_path, 'w', encoding='utf-8') as fh:
             json.dump(meta, fh, ensure_ascii=False, indent=2)
-        print(f"[UPLOAD] ✅ Metadata guardada")
+        print("[UPLOAD] ✅ Metadata guardada")
     except Exception as e:
         print(f"[UPLOAD] ⚠️ Error guardando metadata: {e}")
 
@@ -174,7 +174,7 @@ def upload():
             'timestamp': meta['received_ts'],
             'has_location': 'lat' in meta and 'lon' in meta
         })
-        print(f"[UPLOAD] 📢 Evento 'new_photo' emitido")
+        print("[UPLOAD] 📢 Evento 'new_photo' emitido")
     except Exception as e:
         print(f"[UPLOAD] ⚠️ Error emitiendo evento: {e}")
 
