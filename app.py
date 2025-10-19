@@ -15,6 +15,7 @@ app = Flask(__name__, static_folder='static', static_url_path='/')
 CORS(app, resources={r"/*": {"origins": "*"}})
 
 # 🔧 Configuración mejorada de SocketIO
+# 🔥 CRÍTICO: Configurar para soportar polling principalmente
 socketio = SocketIO(
     app,
     cors_allowed_origins='*',
@@ -22,7 +23,13 @@ socketio = SocketIO(
     ping_timeout=60,
     ping_interval=25,
     logger=True,
-    engineio_logger=True
+    engineio_logger=True,
+    # Permitir todos los transportes, polling primero
+    transports=['polling', 'websocket'],
+    # Aumentar timeouts para redes móviles
+    http_compression=True,
+    # Permitir más tamaño de payload
+    max_http_buffer_size=10000000
 )
 
 
